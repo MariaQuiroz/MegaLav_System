@@ -2,33 +2,94 @@ package com.megalab.service;
 
 import com.megalab.dao.ClienteDAO;
 import com.megalab.model.Cliente;
-import java.sql.SQLException;
+
 import java.util.List;
 
-
 public class ClienteService {
-    private final ClienteDAO clienteDAO;
+
+    private ClienteDAO clienteDAO;
 
     public ClienteService() {
-        this.clienteDAO = new ClienteDAO();
+        clienteDAO = new ClienteDAO();
     }
 
-    
-    public boolean registrarCliente(Cliente cliente) throws Exception {
-        if (cliente.getCedula() == null || cliente.getCedula().trim().isEmpty()) {
-            throw new Exception("La identificación/cédula es mandatoria.");
+    // ==========================
+    // AGREGAR
+    // ==========================
+
+    public boolean agregarCliente(
+            String cedula,
+            String nombres,
+            String apellidos,
+            String telefono
+    ) {
+
+        if (clienteDAO.existeCedula(cedula)) {
+            return false;
         }
-        if (cliente.getNombre() == null || cliente.getNombre().trim().isEmpty()) {
-            throw new Exception("El nombre del cliente no puede estar vacío.");
-        }
-        if (cliente.getApellido() == null || cliente.getApellido().trim().isEmpty()) {
-            throw new Exception("El apellido del cliente es mandatorio.");
-        }
-        
-        return clienteDAO.guardar(cliente);
+
+        Cliente cliente = new Cliente(
+                0,
+                cedula,
+                nombres,
+                apellidos,
+                telefono
+        );
+
+        return clienteDAO.agregarCliente(cliente);
     }
 
-    public List<Cliente> obtenerTodosLosClientes() throws SQLException {
-        return clienteDAO.listarTodos();
+    // ==========================
+    // LISTAR
+    // ==========================
+
+    public List<Cliente> obtenerClientes() {
+        return clienteDAO.obtenerClientes();
+    }
+
+    // ==========================
+    // ELIMINAR
+    // ==========================
+
+    public boolean eliminarCliente(int idCliente) {
+        return clienteDAO.eliminarCliente(idCliente);
+    }
+
+    // ==========================
+    // ACTUALIZAR
+    // ==========================
+
+    public boolean actualizarCliente(
+            int idCliente,
+            String cedula,
+            String nombres,
+            String apellidos,
+            String telefono
+    ) {
+
+        if (clienteDAO.existeCedulaEnOtroCliente(
+                cedula,
+                idCliente
+        )) {
+            return false;
+        }
+
+        Cliente cliente = new Cliente(
+                idCliente,
+                cedula,
+                nombres,
+                apellidos,
+                telefono
+        );
+
+        return clienteDAO.actualizarCliente(cliente);
+    }
+
+    // ==========================
+    // BUSCAR POR ID
+    // ==========================
+
+    public Cliente buscarPorId(int idCliente) {
+        return clienteDAO.buscarPorId(idCliente);
     }
 }
